@@ -3,8 +3,8 @@
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
 
-/Assets/Scene_Afanty/
-!/Assets/Scene_Afanty/Scripts/
+Assets/Scene_Afanty/*
+!Assets/Scene_Afanty/Scripts/
 
 *.avi
 ignore.conf
