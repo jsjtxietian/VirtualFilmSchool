@@ -5,6 +5,8 @@
 * 交互参考：https://www.youtube.com/watch?v=jDYLfCurgcI
 * 目前随意拖动进度条会造成视频播放和粒子效果有问题,看下ParticleControlPlayable,以及视频相关
 * 控制、内容、感官一致性、多模态？（以显示内容为基准）
+* 声音的timeline
+* 定量：完成任务的时间、效果、可用性等等。看看chi的、手机电脑一致性
 
 #### Note:
 * 老爷：object046(鼻子),Character002PalmBone003 1(右手),Character002PalmBone003(左手)，Character002Hub001(身体)

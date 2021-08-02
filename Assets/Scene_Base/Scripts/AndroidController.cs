@@ -7,11 +7,11 @@ using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 
 
-public class AndriodController : MonoBehaviour
+public class AndroidController : MonoBehaviour
 {
     private Afanty Afanty;
     [SerializeField]
-    private WebCamController cameraController;
+    private AndroidCamController cameraController;
     private float _currentAniTime = 0;
     private float CurrentAniTime
     {
@@ -73,6 +73,8 @@ public class AndriodController : MonoBehaviour
         playbackButton = GameObject.Find("UI/TimeLineControl/Playback").GetComponent<Button>();
         playbackButton.onClick.AddListener(OnPlaybackButtonClick);
 
+        // Screen.SetResolution(1920,1080,false);
+        // Screen.fullScreen = false;
         IsInited = true;
     }
 
@@ -87,7 +89,7 @@ public class AndriodController : MonoBehaviour
             CurrentAniTime += Time.deltaTime;
             currentMaxTime = CurrentAniTime > currentMaxTime ? CurrentAniTime : currentMaxTime;
             cameraController.Record(CurrentAniTime);
-            cameraController.ChangeCamParaInWeb();
+            cameraController.ChangeCamParaInAndroid();
         }
         else if (state.Equals(ShootingState.Playback))
         {
@@ -103,7 +105,7 @@ public class AndriodController : MonoBehaviour
         }
         else
         {
-            cameraController.ChangeCamParaInWeb();
+            cameraController.ChangeCamParaInAndroid();
         }
 
         Afanty.SetAniTime(CurrentAniTime);

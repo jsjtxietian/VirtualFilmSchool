@@ -6,15 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Andriod Base.unity
+    path: Assets/Android Base.unity
     guid: e823b35c6fa08cd44a3f0db0e443d57b
   - enabled: 1
     path: Assets/Afanty.unity
     guid: 4068a194cb91f734cad013fea0b306c3
-  - enabled: 1
+  - enabled: 0
     path: Assets/VR Base.unity
     guid: 2f8bb23d63756c6449e15d67233c8732
-  - enabled: 1
+  - enabled: 0
     path: Assets/Web Base.unity
     guid: 34c51780ca6f4d848ac7ad0a4d285680
   m_configObjects: {}
