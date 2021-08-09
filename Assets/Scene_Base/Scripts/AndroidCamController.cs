@@ -37,12 +37,12 @@ public class AndroidCamController : MonoBehaviour
     private GameObject gizmos;
     private Vector3 originScreenPos, originMousePos, originShootCamPos;
     private int z1, z2;
-    private Quaternion Rotation_Origin_Addend = Quaternion.Euler(0, 0, 180);
-    private Quaternion Gyroscope_Attitude_Difference_Addend = Quaternion.Euler(180, 180, 0);
-    private Quaternion Rotation_Origin;
 
     [SerializeField]
     private GyroCamera gyroCamera;
+
+    [SerializeField]
+    private FixedJoystick joystick;
 
 
     void Awake()
@@ -62,7 +62,6 @@ public class AndroidCamController : MonoBehaviour
 
             if (Input.GetMouseButtonDown(0))
             {
-
                 if (Physics.Raycast(ray, out hit))
                 {
                     hittedObject = hit.collider.gameObject;
@@ -259,8 +258,6 @@ public class AndroidCamController : MonoBehaviour
         TransformControl.SetActive(false);
         ViewFinder.SetActive(false);
 
-        // Rotation_Origin =  Input.gyro.attitude * Rotation_Origin_Addend;
-        // Rotation_Origin =  SensorFusion.GetOrientation() * Rotation_Origin_Addend;
         gyroCamera.enabled = true;
     }
 
@@ -275,30 +272,30 @@ public class AndroidCamController : MonoBehaviour
 
     private void MoveCamera(Transform cam)
     {
+        cam.transform.position += cam.transform.forward * joystick.Vertical * Time.deltaTime; 
+        cam.transform.position += cam.transform.right * joystick.Horizontal * Time.deltaTime; 
+
         if (isInFPS)
         {
-            if (Input.touchCount > 0)
-            {
-                Touch touch = Input.GetTouch(0);
+            // if (Input.touchCount > 0)
+            // {
+            //     Touch touch = Input.GetTouch(0);
 
-                if (touch.phase == TouchPhase.Moved)
-                {
-                    Vector2 deltaPos = touch.deltaPosition * FLSensitivity / 8;
+            //     if (touch.phase == TouchPhase.Moved)
+            //     {
+            //         Vector2 deltaPos = touch.deltaPosition * FLSensitivity / 8;
 
-                    float x = cam.rotation.eulerAngles.x;
-                    float y = cam.rotation.eulerAngles.y;
-                    float z = cam.rotation.eulerAngles.z;
+            //         float x = cam.rotation.eulerAngles.x;
+            //         float y = cam.rotation.eulerAngles.y;
+            //         float z = cam.rotation.eulerAngles.z;
 
-                    float deltx = deltaPos.y;
-                    x -= deltx;
-                    float delta = deltaPos.x;
-                    float rotationY = y + delta;
-                    cam.localEulerAngles = new Vector3(x, rotationY, z);
-                }
-            }
-
-            TestGyro(cam);
-            // TestAcceleration(cam);
+            //         float deltx = deltaPos.y;
+            //         x -= deltx;
+            //         float delta = deltaPos.x;
+            //         float rotationY = y + delta;
+            //         cam.localEulerAngles = new Vector3(x, rotationY, z);
+            //     }
+            // }
         }
     }
 
@@ -309,71 +306,4 @@ public class AndroidCamController : MonoBehaviour
         return new Vector2(x * i * z2, y * i * z1);
     }
 
-    private void TestAcceleration(Transform cam)
-    {
-        // Debug.Log(Input.acceleration);
-        Vector3 dir = Input.gyro.userAcceleration;
-        dir.x = -Input.gyro.userAcceleration.y;
-        dir.z = Input.gyro.userAcceleration.x;
-
-        if (dir.sqrMagnitude > 1)
-            dir.Normalize();
-
-        if (dir.sqrMagnitude < 0.2f)
-        {
-            return ;
-        }
-
-        cam.GetComponent<Rigidbody>().AddForce(dir);
-        Debug.Log(dir);
-
-        //right x , up y
-
-        // Vector3 dir = Vector3.zero;
-        // // we assume that the device is held parallel to the ground
-        // // and the Home button is in the right hand
-
-        // // remap the device acceleration axis to game coordinates:
-        // // 1) XY plane of the device is mapped onto XZ plane
-        // // 2) rotated 90 degrees around Y axis
-
-        // dir.x = -Input.acceleration.y;
-        // dir.z = Input.acceleration.x;
-
-        // // clamp acceleration vector to the unit sphere
-        // if (dir.sqrMagnitude > 1)
-        //     dir.Normalize();
-
-        // // Make it move 10 meters per second instead of 10 meters per frame...
-        // dir *= Time.deltaTime;
-
-        // // Move object
-        // transform.Translate(dir * speed);
-    }
-
-
-    private void TestGyro(Transform cam)
-    {
-        // todo:平滑
-
-        // Quaternion Gyroscope_Attitude_Difference = Quaternion.Inverse(Rotation_Origin) * Input.gyro.attitude;
-        // Gyroscope_Attitude_Difference *= Gyroscope_Attitude_Difference_Addend;
-
-        // // Quaternion Lerped_Quaternion = Quaternion.Lerp(transform.rotation, transform.rotation * Gyroscope_Attitude_Difference, 15 * Time.deltaTime);
-        // Quaternion Lerped_Quaternion = transform.rotation * Gyroscope_Attitude_Difference;
-        // transform.rotation =  Lerped_Quaternion;
-        
-        // Rotation_Origin = Input.gyro.attitude * Rotation_Origin_Addend;
-
-        //=======================
-
-
-        // Debug.Log(SensorFusion.GetOrientation());
-
-        // Quaternion Gyroscope_Attitude_Difference = Quaternion.Inverse(Rotation_Origin) * SensorFusion.GetOrientation();
-        // Gyroscope_Attitude_Difference *= Gyroscope_Attitude_Difference_Addend;
-
-        // transform.rotation =  transform.rotation * Gyroscope_Attitude_Difference;
-        // Rotation_Origin = SensorFusion.GetOrientation() * Rotation_Origin_Addend;
-    }
 }
