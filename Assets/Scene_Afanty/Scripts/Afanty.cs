@@ -57,6 +57,12 @@ public class Afanty : MonoBehaviour
         PlayOilVideo(currentTime);
     }
 
+    public void SetAudioTimeAndPlay(float time)
+    {
+        movieSound.time = currentTime;
+        movieSound.Play();
+    }
+
     private void PlayOilVideo(float animationTime)
     {
         float time = Mathf.Clamp(animationTime - 61.4f, 0, (float)(timeline.duration));

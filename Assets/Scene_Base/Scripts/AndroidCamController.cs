@@ -41,6 +41,8 @@ public class AndroidCamController : MonoBehaviour
     private Quaternion Gyroscope_Attitude_Difference_Addend = Quaternion.Euler(180, 180, 0);
     private Quaternion Rotation_Origin;
 
+    [SerializeField]
+    private GyroCamera gyroCamera;
 
 
     void Awake()
@@ -257,7 +259,9 @@ public class AndroidCamController : MonoBehaviour
         TransformControl.SetActive(false);
         ViewFinder.SetActive(false);
 
-        Rotation_Origin =  Input.gyro.attitude * Rotation_Origin_Addend;
+        // Rotation_Origin =  Input.gyro.attitude * Rotation_Origin_Addend;
+        // Rotation_Origin =  SensorFusion.GetOrientation() * Rotation_Origin_Addend;
+        gyroCamera.enabled = true;
     }
 
     private void DirectorMode()
@@ -266,6 +270,7 @@ public class AndroidCamController : MonoBehaviour
         FPS.SetActive(false);
         TransformControl.SetActive(true);
         ViewFinder.SetActive(true);
+        gyroCamera.enabled = false;
     }
 
     private void MoveCamera(Transform cam)
@@ -314,6 +319,11 @@ public class AndroidCamController : MonoBehaviour
         if (dir.sqrMagnitude > 1)
             dir.Normalize();
 
+        if (dir.sqrMagnitude < 0.2f)
+        {
+            return ;
+        }
+
         cam.GetComponent<Rigidbody>().AddForce(dir);
         Debug.Log(dir);
 
@@ -344,14 +354,26 @@ public class AndroidCamController : MonoBehaviour
 
     private void TestGyro(Transform cam)
     {
-        // Debug.Log(Input.gyro.attitude);
+        // todo:平滑
 
-        Quaternion Gyroscope_Attitude_Difference = Quaternion.Inverse(Rotation_Origin) * Input.gyro.attitude;
-        Gyroscope_Attitude_Difference *= Gyroscope_Attitude_Difference_Addend;
+        // Quaternion Gyroscope_Attitude_Difference = Quaternion.Inverse(Rotation_Origin) * Input.gyro.attitude;
+        // Gyroscope_Attitude_Difference *= Gyroscope_Attitude_Difference_Addend;
 
-        Quaternion Lerped_Quaternion = Quaternion.Lerp(transform.rotation, transform.rotation * Gyroscope_Attitude_Difference, 15 * Time.deltaTime);
-        transform.rotation =  Lerped_Quaternion;
+        // // Quaternion Lerped_Quaternion = Quaternion.Lerp(transform.rotation, transform.rotation * Gyroscope_Attitude_Difference, 15 * Time.deltaTime);
+        // Quaternion Lerped_Quaternion = transform.rotation * Gyroscope_Attitude_Difference;
+        // transform.rotation =  Lerped_Quaternion;
         
-        Rotation_Origin = Input.gyro.attitude * Rotation_Origin_Addend;
+        // Rotation_Origin = Input.gyro.attitude * Rotation_Origin_Addend;
+
+        //=======================
+
+
+        // Debug.Log(SensorFusion.GetOrientation());
+
+        // Quaternion Gyroscope_Attitude_Difference = Quaternion.Inverse(Rotation_Origin) * SensorFusion.GetOrientation();
+        // Gyroscope_Attitude_Difference *= Gyroscope_Attitude_Difference_Addend;
+
+        // transform.rotation =  transform.rotation * Gyroscope_Attitude_Difference;
+        // Rotation_Origin = SensorFusion.GetOrientation() * Rotation_Origin_Addend;
     }
 }

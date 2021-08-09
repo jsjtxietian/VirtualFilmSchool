@@ -73,8 +73,6 @@ public class AndroidController : MonoBehaviour
         playbackButton = GameObject.Find("UI/TimeLineControl/Playback").GetComponent<Button>();
         playbackButton.onClick.AddListener(OnPlaybackButtonClick);
 
-        // Screen.SetResolution(1920,1080,false);
-        // Screen.fullScreen = false;
         IsInited = true;
     }
 
@@ -118,10 +116,12 @@ public class AndroidController : MonoBehaviour
         if (!state.Equals(ShootingState.Shooting))
         {
             state = ShootingState.Shooting;
+            Afanty.SetAudioTimeAndPlay(CurrentAniTime);
         }
         else
         {
             state = ShootingState.Pause;
+            Afanty.movieSound.Pause();
         }
     }
 

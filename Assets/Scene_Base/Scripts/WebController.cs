@@ -124,10 +124,12 @@ public class WebController : MonoBehaviour
         if (!state.Equals(ShootingState.Shooting))
         {
             state = ShootingState.Shooting;
+            Afanty.SetAudioTimeAndPlay(CurrentAniTime);
         }
         else
         {
             state = ShootingState.Pause;
+            Afanty.movieSound.Pause();
         }
     }
 
@@ -149,11 +151,13 @@ public class WebController : MonoBehaviour
         {
             state = ShootingState.Playback;
             playbackButton.transform.GetChild(0).GetComponent<Image>().sprite = buttonSprite[1];
+            Afanty.SetAudioTimeAndPlay(CurrentAniTime);
         }
         else if (state.Equals(ShootingState.Playback))
         {
             state = ShootingState.Pause;
             playbackButton.transform.GetChild(0).GetComponent<Image>().sprite = buttonSprite[0];
+            Afanty.movieSound.Stop();
         }
 
     }
