@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using ExtensionMethods;
 using UnityEngine.EventSystems;
 using Newtonsoft.Json;
+using TMPro;
 
 //Attach to the shooting camera (FPS camera)
 public class AndroidCamController : MonoBehaviour
@@ -44,11 +45,6 @@ public class AndroidCamController : MonoBehaviour
     [SerializeField]
     private FixedJoystick joystick;
 
-
-    void Awake()
-    {
-        Input.gyro.enabled = true;
-    }
 
     void Update()
     {
@@ -134,19 +130,7 @@ public class AndroidCamController : MonoBehaviour
 
     public void ChangeCamParaInAndroid()
     {
-        shootCam.FocusDistance += 0.1f * Input.GetAxis("Mouse ScrollWheel");
 
-        if (isFLInDrag == true)
-        {
-            shootCam.FocalLength += (fdSlider.value - 0.5f) * Time.deltaTime * 35;
-        }
-        else
-        {
-            if (fdSlider.value > 0.5f)
-                fdSlider.value -= Time.deltaTime * 1.5f;
-            if (fdSlider.value < 0.5f)
-                fdSlider.value += Time.deltaTime * 1.5f;
-        }
     }
 
     public void Record(float time)
@@ -204,48 +188,19 @@ public class AndroidCamController : MonoBehaviour
     {
         ExtensionClass.BindEventToUIButton("ViewFinder/ChangeToFPS", FPSMode);
         ExtensionClass.BindEventToUIButton("FPS/ChangeToDirector", DirectorMode);
-        ExtensionClass.BindEventToUIButton("CamPara/Aperture/Left", () => { shootCam.ApertureLevel--; });
-        ExtensionClass.BindEventToUIButton("CamPara/Aperture/Right", () => { shootCam.ApertureLevel++; });
-        ExtensionClass.BindEventToUIButton("CamPara/ShutterSpeed/Left", () => { shootCam.ShutterLevel--; });
-        ExtensionClass.BindEventToUIButton("CamPara/ShutterSpeed/Right", () => { shootCam.ShutterLevel++; });
-        ExtensionClass.BindEventToUIButton("CamPara/ISO/Left", () => { shootCam.ISOLevel--; });
-        ExtensionClass.BindEventToUIButton("CamPara/ISO/Right", () => { shootCam.ISOLevel++; });
-        ExtensionClass.BindEventToUIButton("CamPara/AF-S", () => { shootCam.AutoFoucus(); });
 
         shootCam.UpdateCameraUI = (CameraPara para, string content) =>
         {
             switch (para)
             {
-                case CameraPara.Aperture:
-                    CameraUI.GetChildByName(para.ToString()).GetComponentInChildren<Text>().text = "F " + content;
-                    break;
                 case CameraPara.ShutterSpeed:
-                    CameraUI.GetChildByName(para.ToString()).GetComponentInChildren<Text>().text = "1/" + content;
+                    CameraUI.GetChildByName(para.ToString()).GetComponentInChildren<TextMeshProUGUI>().text = "1/" + content;
                     break;
-                case CameraPara.ISO:
-                    CameraUI.GetChildByName(para.ToString()).GetComponentInChildren<Text>().text = "ISO " + content;
-                    break;
-                case CameraPara.FocalLength:
-                    CameraUI.GetChildByName(para.ToString()).GetComponentInChildren<Text>().text = content + " mm";
-                    break;
-                case CameraPara.FocusDistance:
-                    CameraUI.GetChildByName(para.ToString()).GetComponentInChildren<Text>().text = content + "m";
+                default:
+                    CameraUI.GetChildByName(para.ToString()).GetComponentInChildren<TextMeshProUGUI>().text = content;
                     break;
             }
         };
-
-        CameraUI.GetChildByName("FocusDistance/Slider/Scrollbar").
-            GetComponent<Scrollbar>().onValueChanged.AddListener(
-                value => { shootCam.FocusDistance += value - 0.5f; }
-            );
-
-        fdSlider = CameraUI.GetChildByName("FocalLength/Slider").GetComponent<Slider>();
-        ExtensionClass.AddEventTriggerListener(fdSlider.GetComponent<EventTrigger>(),
-            EventTriggerType.BeginDrag,
-            (e) => { isFLInDrag = true; });
-        ExtensionClass.AddEventTriggerListener(fdSlider.GetComponent<EventTrigger>(),
-            EventTriggerType.EndDrag,
-            (e) => { isFLInDrag = false; });
 
         shootCam.Init();
     }
@@ -277,25 +232,25 @@ public class AndroidCamController : MonoBehaviour
 
         if (isInFPS)
         {
-            // if (Input.touchCount > 0)
-            // {
-            //     Touch touch = Input.GetTouch(0);
+            if (Input.touchCount > 0)
+            {
+                Touch touch = Input.GetTouch(0);
 
-            //     if (touch.phase == TouchPhase.Moved)
-            //     {
-            //         Vector2 deltaPos = touch.deltaPosition * FLSensitivity / 8;
+                if (!EventSystem.current.IsPointerOverGameObject(touch.fingerId) && touch.phase == TouchPhase.Moved)
+                {
+                    Vector2 deltaPos = touch.deltaPosition * FLSensitivity / 8;
 
-            //         float x = cam.rotation.eulerAngles.x;
-            //         float y = cam.rotation.eulerAngles.y;
-            //         float z = cam.rotation.eulerAngles.z;
+                    float x = cam.rotation.eulerAngles.x;
+                    float y = cam.rotation.eulerAngles.y;
+                    float z = cam.rotation.eulerAngles.z;
 
-            //         float deltx = deltaPos.y;
-            //         x -= deltx;
-            //         float delta = deltaPos.x;
-            //         float rotationY = y + delta;
-            //         cam.localEulerAngles = new Vector3(x, rotationY, z);
-            //     }
-            // }
+                    float deltx = deltaPos.y;
+                    x -= deltx;
+                    float delta = deltaPos.x;
+                    float rotationY = y + delta;
+                    cam.localEulerAngles = new Vector3(x, rotationY, z);
+                }
+            }
         }
     }
 
