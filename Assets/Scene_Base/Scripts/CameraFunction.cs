@@ -301,7 +301,7 @@ public class CameraFunction : MonoBehaviour
             }
             else
             {
-                Debug.Log("failed to focus!");
+                // Debug.Log("failed to focus!");
                 FocusDistance = 5;
             }
         }

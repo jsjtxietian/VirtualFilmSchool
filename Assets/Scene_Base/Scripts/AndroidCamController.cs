@@ -25,6 +25,7 @@ public class AndroidCamController : MonoBehaviour
     [SerializeField]
     private GameObject directorCam;
     private CameraFunction shootCam;
+    private bool isInited = false;
     //Camera shooting
     private List<HandCamRecord> HandCamRecArray = new List<HandCamRecord>();
 
@@ -48,6 +49,8 @@ public class AndroidCamController : MonoBehaviour
 
     void Update()
     {
+        if(!isInited)
+            return;
         MoveCamera(isInFPS ? transform : directorCam.transform);
 
         if (!isInFPS)
@@ -126,6 +129,8 @@ public class AndroidCamController : MonoBehaviour
             }
         }
 
+        shootCam.AutoFoucus();
+
     }
 
     public void ChangeCamParaInAndroid()
@@ -181,7 +186,9 @@ public class AndroidCamController : MonoBehaviour
     {
         shootCam = GetComponent<CameraFunction>();
         FLSensitivity = 1 / shootCam.FocalLength * FLSensitivity;
-        InitCam(); DirectorMode();
+        InitCam(); 
+        DirectorMode();
+        isInited = true;
     }
 
     private void InitCam()
@@ -227,29 +234,34 @@ public class AndroidCamController : MonoBehaviour
 
     private void MoveCamera(Transform cam)
     {
-        cam.transform.position += cam.transform.forward * joystick.Vertical * Time.deltaTime; 
-        cam.transform.position += cam.transform.right * joystick.Horizontal * Time.deltaTime; 
-
-        if (isInFPS)
+        bool isUseJoysitck = true;
+        if (Mathf.Abs(joystick.Vertical) < joystick.DeadZone && Mathf.Abs(joystick.Horizontal) < joystick.DeadZone)
         {
-            if (Input.touchCount > 0)
+            isUseJoysitck = false;
+        }
+        else
+        {
+            cam.transform.position += cam.transform.forward * joystick.Vertical * Time.deltaTime;
+            cam.transform.position += cam.transform.right * joystick.Horizontal * Time.deltaTime;
+        }
+
+        if (isInFPS && !isUseJoysitck && Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            if (touch.phase == TouchPhase.Moved)
             {
-                Touch touch = Input.GetTouch(0);
+                Vector2 deltaPos = touch.deltaPosition * FLSensitivity / 8;
 
-                if (!EventSystem.current.IsPointerOverGameObject(touch.fingerId) && touch.phase == TouchPhase.Moved)
-                {
-                    Vector2 deltaPos = touch.deltaPosition * FLSensitivity / 8;
+                float x = cam.rotation.eulerAngles.x;
+                float y = cam.rotation.eulerAngles.y;
+                float z = cam.rotation.eulerAngles.z;
 
-                    float x = cam.rotation.eulerAngles.x;
-                    float y = cam.rotation.eulerAngles.y;
-                    float z = cam.rotation.eulerAngles.z;
-
-                    float deltx = deltaPos.y;
-                    x -= deltx;
-                    float delta = deltaPos.x;
-                    float rotationY = y + delta;
-                    cam.localEulerAngles = new Vector3(x, rotationY, z);
-                }
+                float deltx = deltaPos.y;
+                x -= deltx;
+                float delta = deltaPos.x;
+                float rotationY = y + delta;
+                cam.localEulerAngles = new Vector3(x, rotationY, z);
             }
         }
     }

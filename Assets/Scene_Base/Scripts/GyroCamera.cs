@@ -7,11 +7,8 @@ using System.Collections;
 //https://github.com/unitycoder/UnitySensorFusion
 public class GyroCamera : MonoBehaviour
 {
-    private Quaternion preGyro;
-    private Quaternion destination;
-
-    private Quaternion Rotation_Origin_Addend = Quaternion.Euler(0, 0, 180);
-    private Quaternion Gyroscope_Attitude_Difference_Addend = Quaternion.Euler(180, 180, 0);
+    private float initY;
+    private GameObject proxyGameObject;
 
     // SETTINGS
     [SerializeField] private float _smoothing = 0.1f;
@@ -24,21 +21,30 @@ public class GyroCamera : MonoBehaviour
 
     private void OnEnable()
     {
-        destination = transform.rotation;
-        preGyro = Input.gyro.attitude;
+        if (proxyGameObject == null)
+            proxyGameObject = new GameObject("GyroRotationProxy");
+
+        setProxyRotation();
+        initY = transform.rotation.eulerAngles.y - proxyGameObject.transform.eulerAngles.y;
     }
 
     private void Update()
     {
         ApplyGyroRotation();
-        transform.rotation = Quaternion.Slerp(transform.rotation, destination, _smoothing);
+        transform.rotation = Quaternion.Slerp(transform.rotation, proxyGameObject.transform.rotation, _smoothing);
     }
 
     private void ApplyGyroRotation()
     {
-        Quaternion difference = Quaternion.Inverse(preGyro * Rotation_Origin_Addend) * Input.gyro.attitude * Gyroscope_Attitude_Difference_Addend;
-        destination = destination * difference;
-        preGyro = Input.gyro.attitude;
+        setProxyRotation();
+        proxyGameObject.transform.Rotate(0, initY, 0, Space.World);
+    }
+
+    private void setProxyRotation()
+    {
+        proxyGameObject.transform.rotation = Input.gyro.attitude;
+        proxyGameObject.transform.Rotate(0f, 0f, 180f, Space.Self); // Swap "handedness" of quaternion from gyro.
+        proxyGameObject.transform.Rotate(90f, 180f, 0f, Space.World); // Rotate to make sense as a camera pointing out the back of your device.
     }
 
 }
